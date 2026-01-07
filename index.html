@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work Folder Dashboard</title>
+    <title>Engineering Workspace Dashboard</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -12,285 +12,315 @@
             --text-main: #1e293b;
             --text-sub: #64748b;
             --border: #e2e8f0;
+            --accent: #f1f5f9;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); display: flex; min-height: 100vh; }
 
-        /* Sidebar Style */
+        /* Sidebar */
         aside {
-            width: 280px;
+            width: 300px;
             background: var(--sidebar);
             border-right: 1px solid var(--border);
-            padding: 2rem 1.5rem;
+            padding: 1.5rem;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
+            z-index: 100;
         }
 
-        h1 { font-size: 1.25rem; margin-bottom: 2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .side-title { 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: var(--text-sub); 
+            margin: 1.5rem 0 0.5rem 0.5rem;
+            font-weight: 700;
+        }
+
+        h1 { font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
 
         .nav-item {
             list-style: none;
             padding: 10px 15px;
             cursor: pointer;
             border-radius: 8px;
-            color: var(--text-sub);
-            transition: 0.3s;
-            margin-bottom: 5px;
-            font-weight: 500;
+            color: var(--text-main);
+            transition: 0.2s;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center; gap: 10px;
         }
 
-        .nav-item:hover, .nav-item.active {
-            background: #eff6ff;
-            color: var(--primary);
-        }
+        .nav-item:hover { background: var(--accent); }
+        .nav-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
 
         /* Main Content */
-        main { margin-left: 280px; flex: 1; padding: 2rem 3rem; }
+        main { margin-left: 300px; flex: 1; padding: 2rem; }
 
-        .header-content { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 2rem;
-            position: sticky;
-            top: 0;
-            background: var(--bg);
-            padding: 1rem 0;
-            z-index: 10;
+        .sticky-header {
+            position: sticky; top: 0; background: var(--bg);
+            padding: 10px 0 20px 0; z-index: 50;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            display: flex; justify-content: space-between; align-items: flex-end;
         }
 
-        /* Search Bar */
-        .search-container {
-            position: relative;
-            width: 350px;
+        .search-box { position: relative; width: 350px; }
+        .search-box input {
+            width: 100%; padding: 10px 15px 10px 35px;
+            border-radius: 8px; border: 1px solid var(--border); outline: none;
         }
 
-        #searchInput {
-            width: 100%;
-            padding: 10px 15px;
-            padding-left: 40px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            font-size: 0.9rem;
-            outline: none;
-            transition: 0.3s;
+        /* Detail Section Styles */
+        .detail-pane {
+            background: white; border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
         }
+        .detail-pane h4 { margin-bottom: 1rem; color: var(--primary); border-bottom: 2px solid var(--accent); display: inline-block; }
+        
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 10px; }
+        .info-card { background: var(--accent); padding: 12px; border-radius: 8px; border-left: 4px solid var(--primary); }
+        .info-card strong { display: block; margin-bottom: 4px; color: var(--text-main); font-size: 0.9rem; }
+        .info-card p { font-size: 0.85rem; color: var(--text-sub); line-height: 1.4; }
 
-        #searchInput:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        th { background: var(--accent); text-align: left; padding: 10px; }
+        td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--text-sub); }
 
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-sub);
-        }
-
-        .grid { display: grid; gap: 1rem; }
-
+        /* Cards */
+        .grid { display: grid; gap: 10px; }
         .card {
-            background: white;
-            padding: 1.2rem 1.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.2s;
+            background: white; padding: 1.2rem; border-radius: 10px;
+            border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
         }
+        .card:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .card-info h3 { font-size: 0.95rem; margin-bottom: 4px; }
+        .card-info code { font-size: 0.75rem; color: var(--text-sub); background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
 
-        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-
-        .folder-info h3 { font-size: 1rem; margin-bottom: 4px; color: var(--text-main); }
-        .folder-info code { 
-            font-size: 0.8rem; 
-            color: var(--text-sub); 
-            background: #f1f5f9; 
-            padding: 3px 6px; 
-            border-radius: 4px;
-            display: inline-block;
-            word-break: break-all;
-        }
-
-        .actions { display: flex; gap: 8px; }
-
-        button {
-            padding: 6px 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
+        .btn-group { display: flex; gap: 8px; }
+        button { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
         .btn-open { background: var(--primary); color: white; }
-        .btn-open:hover { background: #1d4ed8; }
-
-        .btn-copy { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); }
+        .btn-link { background: #10b981; color: white; }
+        .btn-copy { background: #f1f5f9; border: 1px solid var(--border); }
         .btn-copy:hover { background: var(--border); }
 
-        .no-results { text-align: center; padding: 3rem; color: var(--text-sub); }
-
-        @media (max-width: 900px) {
-            .header-content { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .search-container { width: 100%; }
-        }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <aside>
-        <h1>📁 Dashboard</h1>
-        <ul id="categoryList"></ul>
-    </aside>
+<aside>
+    <h1⚙️ Engineering Hub</h1>
+    
+    <div class="side-title">My Job</div>
+    <ul id="myJobItems"></ul>
 
-    <main>
-        <div class="header-content">
-            <div>
-                <h2 id="categoryTitle">Printing</h2>
-                <p id="folderCount" style="color: var(--text-sub); font-size: 0.85rem;">Folders</p>
-            </div>
-            <div class="search-container">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Search folder name or path..." onkeyup="filterFolders()">
-            </div>
+    <div class="side-title">General Address</div>
+    <ul id="generalItems"></ul>
+</aside>
+
+<main>
+    <div class="sticky-header">
+        <div>
+            <h2 id="viewTitle">Category</h2>
+            <p id="viewCount" style="color: var(--text-sub); font-size: 0.8rem;"></p>
         </div>
+        <div class="search-box">
+            <span style="position:absolute; left:12px; top:10px;">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search folder or path..." onkeyup="filterView()">
+        </div>
+    </div>
 
-        <div id="folderGrid" class="grid"></div>
-    </main>
+    <div id="extraArea" class="hidden"></div>
+    <div id="folderGrid" class="grid"></div>
+</main>
 
-    <script>
-        const data = {
-            "Printing": [
-                { name: "Drawing Eng", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\A_DATA_PRINTNG_PART" },
-                { name: "Drawing Purch", path: "\\\\svrfiles\\SHARING\\ENG PUR Printing Data" },
-                { name: "Record printing part", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\R_Record" },
-                { name: "PIR excel", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\C_PIR_EXCEL" },
-                { name: "PIR pdf", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\B_PIR" },
-                { name: "Check sheet", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\I_CHECK SHEET" },
-                { name: "Sending sample", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\Q_SENDING SAMPLE" },
-                { name: "CTP Data", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\O_CTP Data" },
-                { name: "Record Issue Sample to QA", path: "\\\\svrfiles\\SHARING\\IQC DEPT\\ISSUE_DRAWING_FROM _ENG\\APPROVAL SAMPLE" },
-                { name: "Request Approval PIR", path: "\\\\SvrfileS\\SHARING\\A_ENG\\@_WAITING_CHECK & APPV_DOC\\PIR" }
-            ],
-            "Calculated ST": [
-                { name: "Calculate ST", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\D_CALCULATE STD TIME\\B. CALCULATE" },
-                { name: "Materi Training", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\D_CALCULATE STD TIME\\MATERI TRAINING" },
-                { name: "ST for Input", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\E_ST FOR INPUT" }
-            ],
-            "ST Confirmation": [
-                { name: "ST Confirmation", path: "\\\\svrfiles\\EDI\\ENG\\JPN_INFO\\01_JPN\\10_Std Time Confirmation" }
-            ],
-            "Create MB": [
-                { name: "Control List MB", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\B_CONTROL LIST M.B" },
-                { name: "WAITING_CHECK_MB", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\A_WAITING CHECK & APPROVED M.B\\WAITING_CHECK_MB" },
-                { name: "Model Transfer List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\G_M.N STATUS BOOK" }
-            ],
-            "Prepare JW": [
-                { name: "Preparw JW List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\UPLOAD WSTD" }
-            ],
-            "ALT": [
-                { name: "Wstd Release Info", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\WSTD RELEASE INFO" },
-                { name: "Control List Alt", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\CONTROL LIST ALT" },
-                { name: "Distribution List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\DOC_DISTRIBUTION LIST" },
-                { name: "Model Rev Control", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\K_MDL_REV_CONT" },
-                { name: "Master List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\L_MASTER_LIST" },
-                { name: "Issue to Prod", path: "\\\\svrfiles\\SHARING\\A.PRODUCTION_ DATABASE\\ISSUE_SOFT_COPY_ENG\\Issue to Prod_Revised" },
-                { name: "Issue to QA", path: "\\\\svrfiles\\SHARING\\00. QA_DB\\ISSUE_SOFT_ENG\\Issue to QA_Revised" },
-                { name: "Issue to SMT", path: "\\\\svrfiles\\SHARING\\IM\\B_NEW_Doc_Engineering_To_SMT\\B_Alteration_Doc" },
-                { name: "Issue to SOP DOC", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\Q_ ISSUE_SOP_FOR_DOC_TEAM" },
-                { name: "Issue to PFMEA", path: "\\\\svrfiles\\DIV-ENG\\SHARING\\1_PROCESS_ENG\\@_ISSUE_JW_FOR CP_FMEA" }
-            ],
-            "Create Wstd": [
-                { name: "New Wstd", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\G_DEVELOPMENT & TECHNICAL\\A_DATA\\F_WSTD" },
-                { name: "Wstd Master", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\O_WSTD_MASTER" }
-            ]
-        };
-
-        let currentCategory = "Printing";
-        const folderGrid = document.getElementById('folderGrid');
-        const categoryTitle = document.getElementById('categoryTitle');
-        const folderCount = document.getElementById('folderCount');
-        const searchInput = document.getElementById('searchInput');
-
-        function renderFolders(category) {
-            currentCategory = category;
-            categoryTitle.innerText = category;
-            searchInput.value = ''; // Reset search on category change
-            filterFolders();
-
-            // Update Active Sidebar State
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('active');
-                if(el.innerText === category) el.classList.add('active');
-            });
-        }
-
-        function filterFolders() {
-            const query = searchInput.value.toLowerCase();
-            const filtered = data[currentCategory].filter(f => 
-                f.name.toLowerCase().includes(query) || 
-                f.path.toLowerCase().includes(query)
-            );
-
-            folderGrid.innerHTML = '';
-            folderCount.innerText = `${filtered.length} folders found`;
-
-            if (filtered.length === 0) {
-                folderGrid.innerHTML = `<div class="no-results">No folders found for "${searchInput.value}"</div>`;
-                return;
-            }
-
-            filtered.forEach(folder => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="folder-info">
-                        <h3>${folder.name}</h3>
-                        <code>${folder.path}</code>
+<script>
+    // Detail Informasi Spesifik Kategori
+    const extraContent = {
+        "Printing": `
+            <div class="detail-pane">
+                <h4>Supplier Details</h4>
+                <table>
+                    <tr><th>Supplier</th><th>CS</th><th>Tlp</th><th>E-mail</th></tr>
+                    <tr><td>PADAMA</td><td>Bu Wurry</td><td>+62 822-9809-1289</td><td>cs-cb@prindo.co.id</td></tr>
+                    <tr><td>CPS</td><td>Bu Dwi</td><td>+62 815-1370-5844</td><td>cs.02@ptcps.co.id</td></tr>
+                    <tr><td>OAJ</td><td>Pak Ridwan</td><td>+62 815-8595-1505</td><td>ridwan@ptoaj.co.id</td></tr>
+                    <tr><td>Chiyoda</td><td>Bu Dewi</td><td>+62 856-2105-991</td><td>dewi@ci-id.com</td></tr>
+                </table>
+                <div class="info-grid" style="margin-top:20px;">
+                    <div class="info-card"><strong>Approval</strong><p>Check: Bu An an / Mba Rahmi<br>Approve: Pak Lambok / Pak Amin</p></div>
+                    <div class="info-card"><strong>Return Sample</strong><p>CPS: All Sample<br>PADAMA: Printsheet Only</p></div>
+                    <div class="info-card"><strong>Purchasing PIC</strong><p>Quotation: Mr Nindra<br>Buyer: Mr Setio / Mr Iano</p></div>
+                </div>
+            </div>`,
+        "ST Confirmation": `
+            <div class="detail-pane">
+                <h4>ST Confirmation Details</h4>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <strong>JKTS Model</strong>
+                        <p>Check : Sato san<br>Approve : Okada san</p>
                     </div>
-                    <div class="actions">
-                        <button class="btn-copy" onclick="copyPath('${folder.path.replace(/\\/g, '\\\\')}')">Copy</button>
-                        <button class="btn-open" onclick="window.location.href='file:///${folder.path.replace(/\\/g, '/')}'">Open</button>
+                    <div class="info-card">
+                        <strong>Japan Model</strong>
+                        <p>Check : JPN PIC on Model Transfer List<br>Approve : Okada san</p>
                     </div>
-                `;
-                folderGrid.appendChild(card);
-            });
+                </div>
+            </div>`
+    };
+
+    const myJobData = {
+        "Printing": [
+            { name: "Drawing Eng", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\A_DATA_PRINTNG_PART" },
+            { name: "Drawing Purch", path: "\\\\svrfiles\\SHARING\\ENG PUR Printing Data" },
+            { name: "Record printing part", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\R_Record" },
+            { name: "PIR excel", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\C_PIR_EXCEL" },
+            { name: "PIR pdf", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\B_PIR" },
+            { name: "Check sheet", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\I_CHECK SHEET" },
+            { name: "Sending sample", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\Q_SENDING SAMPLE" },
+            { name: "CTP Data", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\O_CTP Data" },
+            { name: "Record Issue Sample to QA", path: "\\\\svrfiles\\SHARING\\IQC DEPT\\ISSUE_DRAWING_FROM _ENG\\APPROVAL SAMPLE" },
+            { name: "Request Approval PIR", path: "\\\\SvrfileS\\SHARING\\A_ENG\\@_WAITING_CHECK & APPV_DOC\\PIR" }
+        ],
+        "Calculated ST": [
+            { name: "Calculate ST", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\D_CALCULATE STD TIME\\B. CALCULATE" },
+            { name: "Materi Training", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\D_CALCULATE STD TIME\\MATERI TRAINING" },
+            { name: "ST for Input", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\E_ST FOR INPUT" }
+        ],
+        "ST Confirmation": [ { name: "ST Confirmation", path: "\\\\svrfiles\\EDI\\ENG\\JPN_INFO\\01_JPN\\10_Std Time Confirmation" } ],
+        "Create MB": [
+            { name: "Control List MB", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\B_CONTROL LIST M.B" },
+            { name: "WAITING_CHECK_MB", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\A_WAITING CHECK & APPROVED M.B\\WAITING_CHECK_MB" },
+            { name: "Model Transfer List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\G_M.N STATUS BOOK" }
+        ],
+        "Prepare JW": [ { name: "Prepare JW List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\UPLOAD WSTD" } ],
+        "ALT": [
+            { name: "Wstd Release Info", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\WSTD RELEASE INFO" },
+            { name: "Control List Alt", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\CONTROL LIST ALT" },
+            { name: "Distribution List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\DOC_DISTRIBUTION LIST" },
+            { name: "Model Rev Control", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\K_MDL_REV_CONT" },
+            { name: "Master List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\L_MASTER_LIST" },
+            { name: "Issue to Prod", path: "\\\\svrfiles\\SHARING\\A.PRODUCTION_ DATABASE\\ISSUE_SOFT_COPY_ENG\\Issue to Prod_Revised" },
+            { name: "Issue to QA", path: "\\\\svrfiles\\SHARING\\00. QA_DB\\ISSUE_SOFT_ENG\\Issue to QA_Revised" },
+            { name: "Issue to SMT", path: "\\\\svrfiles\\SHARING\\IM\\B_NEW_Doc_Engineering_To_SMT\\B_Alteration_Doc" },
+            { name: "Issue to SOP DOC", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\Q_ ISSUE_SOP_FOR_DOC_TEAM" },
+            { name: "Issue to PFMEA", path: "\\\\svrfiles\\DIV-ENG\\SHARING\\1_PROCESS_ENG\\@_ISSUE_JW_FOR CP_FMEA" }
+        ],
+        "Create Wstd": [
+            { name: "New Wstd", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\G_DEVELOPMENT & TECHNICAL\\A_DATA\\F_WSTD" },
+            { name: "Wstd Master", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\O_WSTD_MASTER" }
+        ],
+        "NPL Logistic": [
+            { name: "VI18", path: "\\\\Svrfiles\\edi\\JTOPSDATA" },
+            { name: "File NPL Logistic", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\I_NEW_PART_LIST\\G_NPL_FOR_LOGISTIC" }
+        ],
+        "NPL Electrical": [
+            { name: "List NPL Electrical", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\I_NEW_PART_LIST\\A_LIST_NPL_ELEC" },
+            { name: "File NPL Electrical", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\I_NEW_PART_LIST\\B_NPL_ELECTRICAL_ENG" }
+        ],
+        "NPL Mechanical": [
+            { name: "List NPL Mechanical", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\I_NEW_PART_LIST\\F_LIST_NPL_MECHANICAL" },
+            { name: "File NPL Mechanical", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\I_NEW_PART_LIST\\F_1.NPL_MECHANICAL_ENG" }
+        ]
+    };
+
+    const generalAddress = [
+        { name: "Daily Report", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\T_GENERAL\\J_DAILY_REPORT" },
+        { name: "DATA DOCUMENT MASUK", path: "\\\\svrfiles\\SHARING\\COMPANY_CLERK\\CLERK_PERFORMANCE\\GA-DISTRIBUSI DOC\\DATA DOCUMENT MASUK" },
+        { name: "Visitor List", path: "https://docs.google.com/spreadsheets/d/19GVLYVzsQCQXcFw-pTnlrSH_Wtw0dlxe-5ZWs0ZMnLw/edit?gid=1502857957#gid=1502857957", isLink: true },
+        { name: "KPI Individu", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZC_KPI INDIVIDU" },
+        { name: "Video Folder", path: "\\\\136.198.117.111\\video_files" },
+        { name: "Kaizen Report", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\4_KAIZEN REPORT DIV ENG" }
+    ];
+
+    let currentView = "MyJob";
+    let currentSub = "Printing";
+
+    function switchView(type, sub) {
+        currentView = type;
+        currentSub = sub;
+        document.getElementById('viewTitle').innerText = sub || "General Address";
+        
+        const extra = document.getElementById('extraArea');
+        if(sub && extraContent[sub]) {
+            extra.innerHTML = extraContent[sub];
+            extra.classList.remove('hidden');
+        } else {
+            extra.classList.add('hidden');
         }
 
-        function copyPath(path) {
-            navigator.clipboard.writeText(path).then(() => {
-                const btn = event.target;
-                const originalText = btn.innerText;
-                btn.innerText = 'Copied!';
-                btn.style.color = 'green';
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.color = '';
-                }, 2000);
-            });
-        }
+        filterView();
 
-        // Initialize Sidebar
-        const categoryList = document.getElementById('categoryList');
-        Object.keys(data).forEach((cat, index) => {
-            const li = document.createElement('li');
-            li.className = 'nav-item';
-            if(index === 0) li.classList.add('active');
-            li.innerText = cat;
-            li.onclick = () => renderFolders(cat);
-            categoryList.appendChild(li);
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.classList.toggle('active', el.getAttribute('data-id') === (sub || type));
         });
+    }
 
-        // Default Load
-        renderFolders("Printing");
-    </script>
+    function filterView() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const targetData = (currentView === "General") ? generalAddress : myJobData[currentSub];
+        const filtered = targetData.filter(f => f.name.toLowerCase().includes(query) || f.path.toLowerCase().includes(query));
+
+        const grid = document.getElementById('folderGrid');
+        grid.innerHTML = '';
+        document.getElementById('viewCount').innerText = `${filtered.length} items found`;
+
+        filtered.forEach(f => {
+            const isWeb = f.isLink || f.path.startsWith('http');
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `
+                <div class="card-info">
+                    <h3>${f.name}</h3>
+                    <code>${f.path}</code>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-copy" onclick="copyPath('${f.path.replace(/\\/g, '\\\\')}')">Copy</button>
+                    ${isWeb ? 
+                        `<button class="btn-link" onclick="window.open('${f.path}', '_blank')">Go to Link</button>` :
+                        `<button class="btn-open" onclick="window.open('file:///${f.path.replace(/\\/g, '/')}', '_blank')">Open</button>`
+                    }
+                </div>
+            `;
+            grid.appendChild(div);
+        });
+    }
+
+    function copyPath(path) {
+        navigator.clipboard.writeText(path).then(() => {
+            const temp = document.createElement('div');
+            temp.style.position = 'fixed'; temp.style.bottom = '20px'; temp.style.right = '20px';
+            temp.style.background = '#10b981'; temp.style.color = 'white'; temp.style.padding = '10px 20px';
+            temp.style.borderRadius = '8px'; temp.innerText = 'Path Copied!';
+            document.body.appendChild(temp);
+            setTimeout(() => temp.remove(), 2000);
+        });
+    }
+
+    // Init Menu Sidebar
+    const myJobMenu = document.getElementById('myJobItems');
+    Object.keys(myJobData).forEach(cat => {
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+        li.setAttribute('data-id', cat);
+        li.innerHTML = `<span>📂</span> ${cat}`;
+        li.onclick = () => switchView("MyJob", cat);
+        myJobMenu.appendChild(li);
+    });
+
+    const genMenu = document.getElementById('generalItems');
+    const liGen = document.createElement('li');
+    liGen.className = 'nav-item';
+    liGen.setAttribute('data-id', "General");
+    liGen.innerHTML = `<span>🌍</span> All General Address`;
+    liGen.onclick = () => switchView("General", "General Address");
+    genMenu.appendChild(liGen);
+
+    switchView("MyJob", "Printing");
+</script>
 </body>
 </html>
