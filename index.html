@@ -1,220 +1,296 @@
-import { useState } from 'react';
-import { FolderOpen, Server, Copy, Check } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Folder Dashboard</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --sidebar: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+        }
 
-interface Folder {
-  name: string;
-  path: string;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 
-interface Category {
-  id: string;
-  name: string;
-  folders: Folder[];
-}
+        body { background-color: var(--bg); color: var(--text-main); display: flex; min-height: 100vh; }
 
-const categories: Category[] = [
-  {
-    id: 'printing',
-    name: 'Printing',
-    folders: [
-      { name: 'Drawing Eng', path: '\\\\svrfiles\\Engineering\\Drawing_Eng' },
-      { name: 'PIR Excel', path: '\\\\svrfiles\\Engineering\\PIR_Excel' },
-      { name: 'Technical Specs', path: '\\\\svrfiles\\Engineering\\Technical_Specs' },
-    ]
-  },
-  {
-    id: 'calculated-st',
-    name: 'Calculated ST',
-    folders: [
-      { name: 'ST Calculations', path: '\\\\svrfiles\\Production\\ST_Calculations' },
-      { name: 'Analysis Reports', path: '\\\\svrfiles\\Production\\Analysis_Reports' },
-      { name: 'Data Sheets', path: '\\\\svrfiles\\Production\\Data_Sheets' },
-    ]
-  },
-  {
-    id: 'st-confirmation',
-    name: 'ST Confirmation',
-    folders: [
-      { name: 'Approval Forms', path: '\\\\svrfiles\\Production\\Approval_Forms' },
-      { name: 'Confirmation Docs', path: '\\\\svrfiles\\Production\\Confirmation_Docs' },
-      { name: 'Signed ST', path: '\\\\svrfiles\\Production\\Signed_ST' },
-    ]
-  },
-  {
-    id: 'create-mb',
-    name: 'Create MB',
-    folders: [
-      { name: 'Control List MB', path: '\\\\svrfiles\\Manufacturing\\Control_List_MB' },
-      { name: 'MB Templates', path: '\\\\svrfiles\\Manufacturing\\MB_Templates' },
-      { name: 'BOM Files', path: '\\\\svrfiles\\Manufacturing\\BOM_Files' },
-    ]
-  },
-  {
-    id: 'prepare-jw',
-    name: 'Prepare JW',
-    folders: [
-      { name: 'JW Documents', path: '\\\\svrfiles\\JobWork\\JW_Documents' },
-      { name: 'Work Orders', path: '\\\\svrfiles\\JobWork\\Work_Orders' },
-      { name: 'JW Schedule', path: '\\\\svrfiles\\JobWork\\JW_Schedule' },
-    ]
-  },
-  {
-    id: 'alt',
-    name: 'ALT',
-    folders: [
-      { name: 'ALT Reports', path: '\\\\svrfiles\\Testing\\ALT_Reports' },
-      { name: 'Test Results', path: '\\\\svrfiles\\Testing\\Test_Results' },
-      { name: 'Compliance Docs', path: '\\\\svrfiles\\Testing\\Compliance_Docs' },
-    ]
-  },
-  {
-    id: 'create-wstd',
-    name: 'Create Wstd',
-    folders: [
-      { name: 'Wstd Templates', path: '\\\\svrfiles\\Standards\\Wstd_Templates' },
-      { name: 'Work Standards', path: '\\\\svrfiles\\Standards\\Work_Standards' },
-      { name: 'Procedures', path: '\\\\svrfiles\\Standards\\Procedures' },
-    ]
-  },
-];
+        /* Sidebar Style */
+        aside {
+            width: 280px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
 
-export default function App() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('printing');
-  const [copiedPath, setCopiedPath] = useState<string | null>(null);
+        h1 { font-size: 1.25rem; margin-bottom: 2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
 
-  const currentCategory = categories.find(cat => cat.id === selectedCategory);
+        .nav-item {
+            list-style: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            color: var(--text-sub);
+            transition: 0.3s;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
 
-  const handleCopyPath = (path: string) => {
-    navigator.clipboard.writeText(path);
-    setCopiedPath(path);
-    setTimeout(() => setCopiedPath(null), 2000);
-  };
+        .nav-item:hover, .nav-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+        }
 
-  const handleFolderClick = (path: string) => {
-    window.location.href = `file:///${path}`;
-  };
+        /* Main Content */
+        main { margin-left: 280px; flex: 1; padding: 2rem 3rem; }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
-        <div className="px-6 py-4">
-          <div className="flex items-center gap-3">
-            <Server className="w-8 h-8 text-blue-600" />
+        .header-content { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            padding: 1rem 0;
+            z-index: 10;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            width: 350px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px 15px;
+            padding-left: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        #searchInput:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-sub);
+        }
+
+        .grid { display: grid; gap: 1rem; }
+
+        .card {
+            background: white;
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .folder-info h3 { font-size: 1rem; margin-bottom: 4px; color: var(--text-main); }
+        .folder-info code { 
+            font-size: 0.8rem; 
+            color: var(--text-sub); 
+            background: #f1f5f9; 
+            padding: 3px 6px; 
+            border-radius: 4px;
+            display: inline-block;
+            word-break: break-all;
+        }
+
+        .actions { display: flex; gap: 8px; }
+
+        button {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-open { background: var(--primary); color: white; }
+        .btn-open:hover { background: #1d4ed8; }
+
+        .btn-copy { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border); }
+        .btn-copy:hover { background: var(--border); }
+
+        .no-results { text-align: center; padding: 3rem; color: var(--text-sub); }
+
+        @media (max-width: 900px) {
+            .header-content { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .search-container { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <h1>📁 Dashboard</h1>
+        <ul id="categoryList"></ul>
+    </aside>
+
+    <main>
+        <div class="header-content">
             <div>
-              <h1 className="text-slate-800">File Management System</h1>
-              <p className="text-slate-500 text-sm mt-0.5">Quick access to network server directories</p>
+                <h2 id="categoryTitle">Printing</h2>
+                <p id="folderCount" style="color: var(--text-sub); font-size: 0.85rem;">Folders</p>
             </div>
-          </div>
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search folder name or path..." onkeyup="filterFolders()">
+            </div>
         </div>
-      </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-slate-200 min-h-[calc(100vh-73px)] shadow-sm">
-          <nav className="p-4">
-            <h2 className="text-slate-600 text-xs uppercase tracking-wide px-3 py-2 mb-2">Categories</h2>
-            <ul className="space-y-1">
-              {categories.map((category) => (
-                <li key={category.id}>
-                  <button
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-3 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                      selectedCategory === category.id
-                        ? 'bg-blue-50 text-blue-700 shadow-sm'
-                        : 'text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    <FolderOpen className={`w-4 h-4 ${
-                      selectedCategory === category.id ? 'text-blue-600' : 'text-slate-400'
-                    }`} />
-                    <span>{category.name}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </aside>
+        <div id="folderGrid" class="grid"></div>
+    </main>
 
-        {/* Main Content */}
-        <main className="flex-1 p-8">
-          <div className="max-w-6xl">
-            <div className="mb-6">
-              <h2 className="text-slate-800 mb-1">{currentCategory?.name}</h2>
-              <p className="text-slate-500 text-sm">Access folders and network paths</p>
-            </div>
+    <script>
+        const data = {
+            "Printing": [
+                { name: "Drawing Eng", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\A_DATA_PRINTNG_PART" },
+                { name: "Drawing Purch", path: "\\\\svrfiles\\SHARING\\ENG PUR Printing Data" },
+                { name: "Record printing part", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\R_Record" },
+                { name: "PIR excel", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\C_PIR_EXCEL" },
+                { name: "PIR pdf", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\B_PIR" },
+                { name: "Check sheet", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\I_CHECK SHEET" },
+                { name: "Sending sample", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\Q_SENDING SAMPLE" },
+                { name: "CTP Data", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\ZD_PRINTING CARTON_IM\\O_CTP Data" },
+                { name: "Record Issue Sample to QA", path: "\\\\svrfiles\\SHARING\\IQC DEPT\\ISSUE_DRAWING_FROM _ENG\\APPROVAL SAMPLE" },
+                { name: "Request Approval PIR", path: "\\\\SvrfileS\\SHARING\\A_ENG\\@_WAITING_CHECK & APPV_DOC\\PIR" }
+            ],
+            "Calculated ST": [
+                { name: "Calculate ST", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\D_CALCULATE STD TIME\\B. CALCULATE" },
+                { name: "Materi Training", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\D_CALCULATE STD TIME\\MATERI TRAINING" },
+                { name: "ST for Input", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\G_STD_TIME\\E_ST FOR INPUT" }
+            ],
+            "ST Confirmation": [
+                { name: "ST Confirmation", path: "\\\\svrfiles\\EDI\\ENG\\JPN_INFO\\01_JPN\\10_Std Time Confirmation" }
+            ],
+            "Create MB": [
+                { name: "Control List MB", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\B_CONTROL LIST M.B" },
+                { name: "WAITING_CHECK_MB", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\A_WAITING CHECK & APPROVED M.B\\WAITING_CHECK_MB" },
+                { name: "Model Transfer List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\MODIFICATION BULLETIN\\G_M.N STATUS BOOK" }
+            ],
+            "Prepare JW": [
+                { name: "Preparw JW List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\UPLOAD WSTD" }
+            ],
+            "ALT": [
+                { name: "Wstd Release Info", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\WSTD RELEASE INFO" },
+                { name: "Control List Alt", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\CONTROL LIST ALT" },
+                { name: "Distribution List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\B_REC_ISSUE\\DOC_DISTRIBUTION LIST" },
+                { name: "Model Rev Control", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\K_MDL_REV_CONT" },
+                { name: "Master List", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\L_MASTER_LIST" },
+                { name: "Issue to Prod", path: "\\\\svrfiles\\SHARING\\A.PRODUCTION_ DATABASE\\ISSUE_SOFT_COPY_ENG\\Issue to Prod_Revised" },
+                { name: "Issue to QA", path: "\\\\svrfiles\\SHARING\\00. QA_DB\\ISSUE_SOFT_ENG\\Issue to QA_Revised" },
+                { name: "Issue to SMT", path: "\\\\svrfiles\\SHARING\\IM\\B_NEW_Doc_Engineering_To_SMT\\B_Alteration_Doc" },
+                { name: "Issue to SOP DOC", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\Q_ ISSUE_SOP_FOR_DOC_TEAM" },
+                { name: "Issue to PFMEA", path: "\\\\svrfiles\\DIV-ENG\\SHARING\\1_PROCESS_ENG\\@_ISSUE_JW_FOR CP_FMEA" }
+            ],
+            "Create Wstd": [
+                { name: "New Wstd", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\G_DEVELOPMENT & TECHNICAL\\A_DATA\\F_WSTD" },
+                { name: "Wstd Master", path: "\\\\svrfiles\\DIV-ENG\\MEMBER\\1_PROCESS_ENG\\A_ENG_DOC\\O_WSTD_MASTER" }
+            ]
+        };
 
-            {/* Folders Grid */}
-            <div className="grid grid-cols-1 gap-4">
-              {currentCategory?.folders.map((folder, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-                >
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <button
-                        onClick={() => handleFolderClick(folder.path)}
-                        className="flex-1 text-left group"
-                      >
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
-                            <FolderOpen className="w-5 h-5 text-blue-600" />
-                          </div>
-                          <h3 className="text-slate-800 group-hover:text-blue-600 transition-colors">
-                            {folder.name}
-                          </h3>
-                        </div>
-                        <div className="ml-11 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-slate-500 uppercase tracking-wide">Address:</span>
-                            <code className="text-sm text-slate-700 font-mono">{folder.path}</code>
-                          </div>
-                        </div>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleCopyPath(folder.path)}
-                        className="mt-1 p-2 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
-                        title="Copy path"
-                      >
-                        {copiedPath === folder.path ? (
-                          <>
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span className="text-green-600 text-xs">Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span className="text-xs">Copy</span>
-                          </>
-                        )}
-                      </button>
+        let currentCategory = "Printing";
+        const folderGrid = document.getElementById('folderGrid');
+        const categoryTitle = document.getElementById('categoryTitle');
+        const folderCount = document.getElementById('folderCount');
+        const searchInput = document.getElementById('searchInput');
+
+        function renderFolders(category) {
+            currentCategory = category;
+            categoryTitle.innerText = category;
+            searchInput.value = ''; // Reset search on category change
+            filterFolders();
+
+            // Update Active Sidebar State
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+                if(el.innerText === category) el.classList.add('active');
+            });
+        }
+
+        function filterFolders() {
+            const query = searchInput.value.toLowerCase();
+            const filtered = data[currentCategory].filter(f => 
+                f.name.toLowerCase().includes(query) || 
+                f.path.toLowerCase().includes(query)
+            );
+
+            folderGrid.innerHTML = '';
+            folderCount.innerText = `${filtered.length} folders found`;
+
+            if (filtered.length === 0) {
+                folderGrid.innerHTML = `<div class="no-results">No folders found for "${searchInput.value}"</div>`;
+                return;
+            }
+
+            filtered.forEach(folder => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="folder-info">
+                        <h3>${folder.name}</h3>
+                        <code>${folder.path}</code>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    <div class="actions">
+                        <button class="btn-copy" onclick="copyPath('${folder.path.replace(/\\/g, '\\\\')}')">Copy</button>
+                        <button class="btn-open" onclick="window.location.href='file:///${folder.path.replace(/\\/g, '/')}'">Open</button>
+                    </div>
+                `;
+                folderGrid.appendChild(card);
+            });
+        }
 
-            {/* Info Box */}
-            <div className="mt-8 bg-blue-50 border border-blue-100 rounded-xl p-4">
-              <div className="flex gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Server className="w-4 h-4 text-blue-600" />
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-blue-900 mb-1">Network Access</h4>
-                  <p className="text-sm text-blue-700">
-                    Click on any folder to open it directly in File Explorer. Use the copy button to copy the network path to your clipboard.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    </div>
-  );
-}
+        function copyPath(path) {
+            navigator.clipboard.writeText(path).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = 'Copied!';
+                btn.style.color = 'green';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // Initialize Sidebar
+        const categoryList = document.getElementById('categoryList');
+        Object.keys(data).forEach((cat, index) => {
+            const li = document.createElement('li');
+            li.className = 'nav-item';
+            if(index === 0) li.classList.add('active');
+            li.innerText = cat;
+            li.onclick = () => renderFolders(cat);
+            categoryList.appendChild(li);
+        });
+
+        // Default Load
+        renderFolders("Printing");
+    </script>
+</body>
+</html>
